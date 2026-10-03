@@ -3,7 +3,7 @@ services:
     build: .
     container_name: meerflow-financien
     ports:
-      - "3000:3000"
+      - "3830:3000"
     environment:
       # SQLite database file inside the Docker volume
       DATABASE_URL: "file:/data/app.db"

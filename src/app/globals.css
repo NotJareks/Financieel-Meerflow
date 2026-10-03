@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #11110f;
+  --surface: #191916;
+  --surface-light: #22221e;
+  --surface-lighter: #292923;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f3f0e8;
+  --text-muted: #a8a59c;
+  --accent: #c7b28a;
+  --accent-light: #e1d2b3;
+  --danger: #b87878;
+  --success: #9eae91;
+  --radius: 18px;
+  --font-dm-sans: "DM Sans", sans-serif;
+  --font-playfair: "Playfair Display", serif;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image: radial-gradient(
+      circle at top right,
+      rgba(199, 178, 138, 0.06),
+      transparent 35%
+    );
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-serif font-medium;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: rgba(199, 178, 138, 0.3);
+    color: #f3f0e8;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply mb-2.5 block text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-accent;
+  }
+
+  .luxury-card {
+    @apply rounded-[18px] border border-border;
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.012)
+    );
+  }
+
+  .luxury-card-gold {
+    @apply rounded-[18px] border border-accent/20;
+    background: linear-gradient(
+      135deg,
+      rgba(199, 178, 138, 0.11),
+      rgba(255, 255, 255, 0.025)
+    );
+  }
+
+  .panel {
+    @apply rounded-[18px] border border-border p-7;
+    background: rgba(255, 255, 255, 0.018);
+  }
+
+  .card-label {
+    @apply text-[0.72rem] uppercase tracking-[0.12em] text-muted-foreground;
+  }
+
+  .progress-track {
+    @apply h-[5px] w-full overflow-hidden rounded-full bg-white/[0.07];
+  }
+
+  .progress-fill {
+    @apply h-full rounded-full;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    transition: width 0.3s ease;
+  }
+
+  .money-input-shell {
+    @apply flex items-center gap-2 rounded-[10px] border border-border bg-surface-light px-3 transition-colors focus-within:border-accent/40;
+  }
+
+  .money-input-shell > span {
+    @apply text-muted-foreground;
+  }
+
+  .money-input-shell input {
+    @apply w-full border-0 bg-transparent py-[13px] text-foreground outline-none placeholder:text-muted-foreground/60;
+  }
+
+  .form-label {
+    @apply text-[0.72rem] text-muted-foreground;
+  }
+}

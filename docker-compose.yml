@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    container_name: meerflow-financien
+    ports:
+      - "3000:3000"
+    environment:
+      # SQLite database file inside the Docker volume
+      DATABASE_URL: "file:/data/app.db"
+      # IMPORTANT: change this to a long random string in production.
+      # Generate one with: openssl rand -base64 32
+      AUTH_SECRET: "change-me-to-a-long-random-secret-string-please"
+      # Initial admin account, created automatically by the seed on first start
+      ADMIN_EMAIL: "admin@meerflow.nl"
+      ADMIN_PASSWORD: "Admin123!"
+      ADMIN_NAME: "Beheerder"
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      - db-data:/data
+    restart: unless-stopped
+
+volumes:
+  db-data:

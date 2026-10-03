@@ -1,0 +1,149 @@
+// Prisma schema — SQLite now, swappable to PostgreSQL later.
+// All monetary values are stored as integer cents.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+enum Frequency {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  passwordHash     String
+  name             String?
+  role             Role     @default(USER)
+  disabled         Boolean  @default(false)
+  unallocatedCents Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  pots            Pot[]
+  transactions    Transaction[]
+  incomes         BudgetIncome[]
+  expenses        BudgetExpense[]
+  budgetSettings  BudgetSettings?
+  actualMonths    ActualBudgetMonth[]
+  createdInvites  InviteCode[] @relation("CreatedInvites")
+}
+
+model InviteCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  role        Role      @default(USER)
+  maxUses     Int       @default(1)
+  uses        Int       @default(0)
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  note        String?
+  createdById String
+  createdBy   User      @relation("CreatedInvites", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Pot {
+  id              String    @id @default(cuid())
+  userId          String
+  name            String
+  description     String?
+  amountCents     Int       @default(0)
+  goalEnabled     Boolean   @default(false)
+  goalAmountCents Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+  actualMonths  ActualBudgetMonth[]
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  potId       String
+  userId      String
+  type        TransactionType
+  amountCents Int
+  description String?
+  date        DateTime
+  createdAt   DateTime        @default(now())
+
+  pot  Pot  @relation(fields: [potId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BudgetIncome {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  amountCents Int
+  frequency   Frequency @default(MONTHLY)
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BudgetExpense {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  category    String
+  amountCents Int
+  frequency   Frequency @default(MONTHLY)
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BudgetSettings {
+  id                     String @id @default(cuid())
+  userId                 String @unique
+  monthlySavingGoalCents Int    @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ActualBudgetMonth {
+  id         String    @id @default(cuid())
+  userId     String
+  month      String // YYYY-MM
+  savedCents Int       @default(0)
+  savedPotId String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  savedPot Pot?                  @relation(fields: [savedPotId], references: [id], onDelete: SetNull)
+  spending ActualBudgetSpending[]
+
+  @@unique([userId, month])
+}
+
+model ActualBudgetSpending {
+  id                  String @id @default(cuid())
+  actualBudgetMonthId String
+  category            String
+  amountCents         Int    @default(0)
+
+  actualBudgetMonth ActualBudgetMonth @relation(fields: [actualBudgetMonthId], references: [id], onDelete: Cascade)
+
+  @@unique([actualBudgetMonthId, category])
+}

@@ -18,6 +18,12 @@ services:
     volumes:
       - db-data:/data
     restart: unless-stopped
+    networks:
+      - meerflow_ai-net
+
+networks:
+  meerflow_ai-net:
+    external: true
 
 volumes:
   db-data:
